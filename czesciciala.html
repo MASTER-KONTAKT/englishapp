@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nauka Angielskiego</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
+            user-select: none;
+        }
+
+        .navbar {
+            width: 100%;
+            background-color: gray;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            user-select: none;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .navbar img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .navbar a:hover {
+            background-color: #555;
+            border-radius: 5px;
+        }
+
+  
+
+        .container {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            flex-grow: 1;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .word {
+            padding: 10px;
+            margin: 5px;
+            background: white;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            text-align: center;
+            min-width: 100px;
+            min-height: 20px;
+            transition: background-color 0.3s;
+            user-select: none;
+        }
+
+        .selected {
+            background-color: lightblue;
+        }
+
+        .correct {
+            background-color: lightgreen;
+        }
+
+        .incorrect {
+            background-color: lightcoral;
+        }
+
+        .message {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+           
+        }
+
+        #footer {
+            width: 100%;
+            background-color: gray;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            user-select: none;
+        }
+
+        #points-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #points-container img {
+            width: 24px;
+            height: 24px;
+        }
+
+        #points {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .no-hover {
+           
+            pointer-events: none;
+        }
+
+        .correct {
+    background-color: lightgreen;
+    transition: background-color 0.5s, opacity 1s;
+    opacity: 1;
+
+
+    
+}
+
+.correct.fade {
+    background-color: rgb(229, 229, 229);
+    opacity: 0.5;  /* Ustawienie przezroczystości */
+    color: #575757;
+}
+
+#stats-container
+{
+    padding: 15px;
+    background-color: #dfdada  ;
+    margin: 20px;
+    box-shadow: 0 4px 15px rgba(168, 7, 80, 0.1);
+    border-radius: 5%;
+    font-size: 15px;
+font-weight: bold;
+}
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="home.html">Start &nbsp; <img src="london-eye.png" alt=""> </a>
+        <a href="#">Osiągnięcia &nbsp;<img src="trophy.png" alt=""></a>
+        <a href="slowka.html">Słowa &nbsp;<img src="conversation.png" alt=""></a>
+    </div>
+    
+    <div class="container">
+        <div class="column" id="english"></div>
+        <div class="column" id="polish"></div>
+        
+    </div>
+    <div id="stats-container">
+        <span id="correct-answers"> <h3>poprawne: 0</h3></span> | 
+        <span id="mistakes">Błędy: 0</span>
+    </div>
+    <button id="finish-button" onclick="markLessonCompleted()">Zakończ lekcję</button>
+    
+    <div class="message" id="message">Zrobiłeś 0 z 3</div>
+
+    <div id="footer"> 
+        <a href="#"> <img src="united-states.png" alt="Flaga USA"> </a>
+        <div id="points-container">
+            <img src="gems.png" alt="Punkty">
+            <span id="points">0</span>
+        </div>
+    </div>
+
+    <script>
+
+
+
+
+
+
+const wordSets = [
+[
+    { "en": "head", "pl": "głowa" },
+    { "en": "eye", "pl": "oko" },
+    { "en": "ear", "pl": "ucho" },
+    { "en": "nose", "pl": "nos" },
+    { "en": "mouth", "pl": "usta" },
+    { "en": "teeth", "pl": "zęby" },
+    { "en": "tongue", "pl": "język" }
+],
+
+[
+    { "en": "neck", "pl": "szyja" },
+    { "en": "shoulder", "pl": "ramię" },
+    { "en": "arm", "pl": "ręka" },
+    { "en": "elbow", "pl": "łokieć" },
+    { "en": "hand", "pl": "dłoń" },
+    { "en": "finger", "pl": "palec" },
+    { "en": "leg", "pl": "noga" }
+],
+[
+    { "en": "głowa", "pl": "head" },
+    { "en": "oko", "pl": "eye" },
+    { "en": "ucho", "pl": "ear" },
+    { "en": "nos", "pl": "nose" },
+    { "en": "usta", "pl": "mouth" },
+    { "en": "zęby", "pl": "teeth" },
+    { "en": "język", "pl": "tongue" }
+],
+[
+    { "en": "szyja", "pl": "neck" },
+    { "en": "ramię", "pl": "shoulder" },
+    { "en": "ręka", "pl": "arm" },
+    { "en": "łokieć", "pl": "elbow" },
+    { "en": "dłoń", "pl": "hand" },
+    { "en": "palec", "pl": "finger" },
+    { "en": "noga", "pl": "leg" }
+]
+
+
+];
+
+let currentSetIndex = 0;
+let selectedEnglish = null;
+let points = localStorage.getItem("points") ? parseInt(localStorage.getItem("points")) : 0;
+let correctAnswers = 0;
+let mistakes = 0;
+
+const englishColumn = document.getElementById("english");
+const polishColumn = document.getElementById("polish");
+const messageBox = document.getElementById("message");
+const pointsDisplay = document.getElementById("points");
+const correctDisplay = document.getElementById("correct-answers");
+const mistakesDisplay = document.getElementById("mistakes");
+
+function updatePointsDisplay() {
+    localStorage.setItem("points", points);
+    pointsDisplay.textContent = points;
+    correctDisplay.textContent = `Poprawne: ${correctAnswers}`;
+    mistakesDisplay.textContent = `Błędy: ${mistakes}`;
+}
+
+function loadWords() {
+    englishColumn.innerHTML = "";
+    polishColumn.innerHTML = "";
+    messageBox.style.opacity = 0;
+
+    const words = wordSets[currentSetIndex];
+    shuffleArray(words).forEach(({ en }) => createWordElement(en, englishColumn, true));
+    shuffleArray(words).forEach(({ pl }) => createWordElement(pl, polishColumn, false));
+}
+
+function createWordElement(text, column, isEnglish) {
+    const div = document.createElement("div");
+    div.classList.add("word");
+    div.textContent = text;
+    div.onclick = () => handleSelection(div, isEnglish);
+    column.appendChild(div);
+}
+
+function handleSelection(element, isEnglish) {
+    if (element.classList.contains("correct")) return;
+
+    if (isEnglish) {
+        if (selectedEnglish) {
+            selectedEnglish.classList.remove("selected");
+        }
+        selectedEnglish = element;
+        selectedEnglish.classList.add("selected");
+    } else if (selectedEnglish) {
+        checkMatch(selectedEnglish, element);
+        selectedEnglish.classList.remove("selected");
+        selectedEnglish = null;
+    }
+}
+
+function checkMatch(enElement, plElement) {
+    const enWord = enElement.textContent;
+    const plWord = plElement.textContent;
+    const correctPair = wordSets[currentSetIndex].find(pair => pair.en === enWord && pair.pl === plWord);
+
+    if (correctPair) {
+        enElement.classList.add("correct", "fade");
+        plElement.classList.add("correct", "fade");
+        points++;
+        correctAnswers++;
+    } else {
+        enElement.classList.add("incorrect");
+        plElement.classList.add("incorrect");
+        mistakes++;
+        setTimeout(() => {
+            enElement.classList.remove("incorrect");
+            plElement.classList.remove("incorrect");
+        }, 1000);
+    }
+    updatePointsDisplay();
+    checkCompletion();
+}
+
+function checkCompletion() {
+    const remainingWords = document.querySelectorAll(".word:not(.correct)");
+
+    if (remainingWords.length === 0) {
+        messageBox.innerHTML = `Zrobiłeś ${currentSetIndex + 1} z ${wordSets.length}`;
+        messageBox.style.opacity = 1;
+
+        setTimeout(() => {
+            englishColumn.innerHTML = "";
+            polishColumn.innerHTML = "";
+        }, 1000);
+
+        setTimeout(() => {
+            messageBox.style.opacity = 0;
+            if (currentSetIndex < wordSets.length - 1) {
+                currentSetIndex++;
+                setTimeout(loadWords, 500);
+            } else {
+                messageBox.innerHTML = "Gratulacje! Ukończyłeś wszystkie części!";
+                messageBox.style.opacity = 1;
+            }
+        }, 2000);
+    }
+}
+
+function shuffleArray(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+updatePointsDisplay();
+loadWords();
+
+
+
+
+
+
+
+
+function markLessonCompleted() {
+    localStorage.setItem("lesson1_completed", "true");
+    window.location.href = "home.html"; // Przekierowanie na stronę główną (lub inną)
+
+  }
+
+
+
+
+  function checkCompletion() {
+    const remainingWords = document.querySelectorAll(".word:not(.correct)");
+
+    if (remainingWords.length === 0) {
+        messageBox.innerHTML = `Zrobiłeś ${currentSetIndex + 1} z ${wordSets.length}`;
+        messageBox.style.opacity = 1;
+
+        setTimeout(() => {
+            englishColumn.innerHTML = "";
+            polishColumn.innerHTML = "";
+        }, 1000);
+
+        setTimeout(() => {
+            messageBox.style.opacity = 0;
+            if (currentSetIndex < wordSets.length - 1) {
+                currentSetIndex++;
+                setTimeout(loadWords, 500);
+            } else {
+                messageBox.innerHTML = "Gratulacje! Ukończyłeś wszystkie części!";
+                messageBox.style.opacity = 1;
+                
+                // Pokazuje przycisk "Zakończ lekcję"
+                document.getElementById("finish-button").style.display = "block";
+            }
+        }, 2000);
+    }
+}
+
+
+
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+
+
+    <style>
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            user-select: none;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
+            padding-top: 50px; /* Miejsce na navbar */
+            padding-bottom: 50px; /* Miejsce na stopkę */
+        }
+        .navbar {
+            width: 100%;
+            background-color: gray;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .navbar a:hover {
+            background-color: #555;
+            border-radius: 5px;
+        }
+
+        .navbar img {
+            width: 24px;
+            height: 24px;
+        }
+
+
+
+
+
+
+
+        #footer {
+            width: 100%;
+            background-color: gray;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="home.html">Start &nbsp; <img src="london-eye.png" alt=""> </a>
+        <a href="#">Osiągnięcia &nbsp;<img src="trophy.png" alt=""></a>
+        <a href="angielski.html">Słowa &nbsp;<img src="conversation.png" alt=""></a>
+    </div>
+    
+
+
+    <div id="footer"> 
+        <a href="#"> <img src="united-states.png" alt="Flaga USA"> </a>
+        <div id="points-container">
+            <img src="gems.png" alt="Punkty">
+            <span id="points">0</span>
+        </div>
+    </div>
+
+    
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family:  Sans-serif;
+            
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
+            padding-top: 50px; /* Miejsce na navbar */
+            padding-bottom: 50px; /* Miejsce na stopkę */
+        }
+
+        .navbar {
+            width: 100%;
+            background-color: gray;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .navbar a:hover {
+            background-color: #555;
+            border-radius: 5px;
+        }
+
+        .navbar img {
+            width: 24px;
+            height: 24px;
+        }
+
+        #all {
+            width: 100%;
+            background-color: #f4f4f4;
+            flex: 1;
+            text-align: left;
+        }
+
+        #footer {
+            width: 100%;
+            background-color: gray;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: gray;
+        }
+
+        .nav-btn:hover {
+            color: black;
+        }
+
+        .aktywnosc {
+            background: white;
+            padding: 5px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 470px;
+            margin-left: 20px;  /* Odstęp od lewej krawędzi */
+            margin-top: 50px;   /* Odstęp od górnej krawędzi */
+            text-align: center;
+        }
+
+        .aktywnosc h2 {
+            font-size: 22px;
+        }
+
+        .calendar {
+       
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            padding: 5px;
+            background: #fff;
+            border-radius: 10px;
+        }
+
+        .day {
+            font-size: 12px;
+            text-align: center;
+             
+            width: 40px;
+            padding: 5px;
+          
+            color: gray;
+        }
+        .active {
+            color: black;
+        }
+
+        .icon {
+            font-size: 16px;
+           
+        }
+
+        #weekInfo {
+            margin-bottom: 15px;
+            font-size: 14px;  /* Zmniejszenie czcionki */
+            font-weight: bold;
+            text-transform: capitalize; /* Miesiąc i rok zaczynają się od wielkiej litery */
+        }
+        .fire {
+            color: orange;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <a href="home.html">Start &nbsp; <img src="london-eye.png" alt=""> </a>
+        <a href="#">Osiągnięcia &nbsp;<img src="trophy.png" alt=""></a>
+        <a href="slowka.html">Słowa &nbsp;<img src="conversation.png" alt=""></a>
+    </div>
+
+    <div id="all">
+        <div class="aktywnosc">
+            <h2>Moja aktywność</h2>
+            <div id="weekInfo"></div> <!-- Miesiąc i rok -->
+            <div class="calendar-header">
+                <button id="prevWeek" class="nav-btn">&#8592;</button>  <!-- Strzałka w lewo -->
+                <button id="nextWeek" class="nav-btn">&#8594;</button>  <!-- Strzałka w prawo -->
+            </div>
+            <div class="calendar" id="calendar"></div>
+        </div>
+    </div>
+
+    <div id="footer">
+        <a href="#"> <img src="united-states.png" alt=""> </a>
+       
+    </div>
+
+    <script>
+
+
+
+
+let currentWeekOffset = 0;
+
+// 🟢 FUNKCJA AKTUALIZUJĄCA AKTYWNOŚĆ W localStorage
+function markTodayAsActive() {
+    let today = new Date().toISOString().split('T')[0]; // Pobierz dzisiejszą datę w formacie YYYY-MM-DD
+    let streakData = JSON.parse(localStorage.getItem('streakData')) || {}; // Pobierz zapisane dane
+
+    // Oznacz dzisiejszy dzień jako aktywny
+    streakData[today] = true;
+
+    // Zapisz dane ponownie do localStorage
+    localStorage.setItem('streakData', JSON.stringify(streakData));
+}
+
+// 🔄 FUNKCJA AKTUALIZUJĄCA KALENDARZ
+function updateCalendar() {
+    let today = new Date();
+    let days = ['PN', 'WT', 'ŚR', 'CZ', 'PT', 'SO', 'ND'];
+    let calendarDiv = document.getElementById('calendar');
+    let weekInfo = document.getElementById('weekInfo');
+    calendarDiv.innerHTML = '';
+    
+    let weekStartDate = new Date(today);
+    weekStartDate.setDate(today.getDate() - today.getDay() + 1 + currentWeekOffset * 7); // Start tygodnia
+    
+    let streakData = JSON.parse(localStorage.getItem('streakData')) || {};
+    let weekDays = [];
+    
+    for (let i = 0; i < 7; i++) {
+        let date = new Date(weekStartDate);
+        date.setDate(weekStartDate.getDate() + i);
+        let dayName = days[(date.getDay() + 6) % 7];
+        let dayNumber = date.getDate();
+        weekDays.push({
+            dayName: dayName,
+            dayNumber: dayNumber,
+            dateKey: date.toISOString().split('T')[0],
+            month: date.toLocaleString('default', { month: 'long' }),
+            year: date.getFullYear()
+        });
+    }
+
+    // Wyświetlanie roku i miesiąca w nagłówku
+    let monthYear = weekDays[0].month + " " + weekDays[0].year;
+    weekInfo.innerHTML = `${monthYear}`;
+
+    weekDays.forEach(day => {
+        let isActive = streakData[day.dateKey] ? '🔥' : '⚪';
+        let dayDiv = document.createElement('div');
+        dayDiv.classList.add('day');
+        if (day.dateKey === new Date().toISOString().split('T')[0]) dayDiv.classList.add('active');
+        dayDiv.innerHTML = `<div>${day.dayName} ${day.dayNumber}</div><div class="icon">${isActive}</div>`;
+        calendarDiv.appendChild(dayDiv);
+    });
+}
+
+// 🔘 OBSŁUGA PRZEŁĄCZANIA TYGODNI
+document.getElementById('prevWeek').addEventListener('click', () => {
+    currentWeekOffset--;
+    updateCalendar();
+});
+
+document.getElementById('nextWeek').addEventListener('click', () => {
+    currentWeekOffset++;
+    updateCalendar();
+});
+
+// ✅ OZNACZ OBECNY DZIEŃ JAKO AKTYWNY I ZAKTUALIZUJ KALENDARZ
+markTodayAsActive();
+updateCalendar();
+    </script>
+
+</body>
+</html>
